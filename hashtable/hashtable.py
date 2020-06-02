@@ -22,6 +22,7 @@ class HashTable:
 
     def __init__(self, capacity):
         # Your code here
+        self.capacity = len(HashTable```)
 
 
     def get_num_slots(self):
