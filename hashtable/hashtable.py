@@ -1,3 +1,4 @@
+
 class HashTableEntry:
     """
     Linked List hash table key/value pair
@@ -11,6 +12,56 @@ class HashTableEntry:
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
 
+class Node:
+    def __init__(self, value):
+        self.value = value
+        self.next = None
+        
+    def __repr__(self):
+        return f'Node({repr(self.value)})'
+        
+class LinkedList:
+    def __init__(self):
+        self.head = None
+    def __str__(self):
+        r = ""
+        cur = self.head
+        
+        while cur is not None:
+            r += f'({cur.value})'
+            if cur.next is not None:
+                r += ' -> '
+            cur = cur.next
+        return r
+        
+    def insert_at_head(self, node):
+        node.next = self.head
+        self.head = node
+            
+    def find(self, value):
+        cur = self.head
+        while cur is not None:
+            if cur.value == value:
+                return cur
+            cur = cur.next
+        return None
+            
+    def delete(self, value):
+        cur = self.head
+        if cur.value == value:
+            self.head = self.head.next
+            return cur
+        prev = cur
+        cur = cur.next         
+        while cur is not None:
+            if cur.value == value:  
+                prev.next = cur.next   
+                return cur
+            else:
+                prev = prev.next
+                cur = cur.next
+        return None
+
 
 class HashTable:
     """
@@ -22,7 +73,10 @@ class HashTable:
 
     def __init__(self, capacity):
         # Your code here
-        self.capacity = len(HashTable```)
+        self.capacity = capacity
+        self.count = 0
+        self.data = [LinkedList()] * capacity
+        # same as data with 8 none's in it
 
 
     def get_num_slots(self):
@@ -37,6 +91,8 @@ class HashTable:
         """
         # Your code here
 
+        return self.capacity
+
 
     def get_load_factor(self):
         """
@@ -45,6 +101,8 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        return self.count / self.capacity 
+        # divide the count by the capacity to get the load factor
 
 
     def fnv1(self, key):
@@ -64,6 +122,10 @@ class HashTable:
         Implement this, and/or FNV-1.
         """
         # Your code here
+        hash = 5381
+        for x in s:
+            hash = (( hash << 5) + hash) + ord(x)
+        return hash & 0xFFFFFFFF
 
 
     def hash_index(self, key):
@@ -83,6 +145,17 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        slot = self.hash_index(key)
+        current = self.storage[slot].head
+        while current:
+            if current.key == key:
+                current.value = value
+            current = current.next
+            
+        entry = HashTableEntry(key, value)
+        self.storage[slot].insert_at_head(entry)
+        self.count += 1
+        
 
 
     def delete(self, key):
@@ -94,6 +167,8 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        self.put(key, None)
+        self.count -= 1  # decrement the count index
 
 
     def get(self, key):
@@ -115,6 +190,8 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        self.capacity = new_capacity
+
 
 
 
