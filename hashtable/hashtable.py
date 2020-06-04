@@ -163,7 +163,7 @@ class HashTable:
             prev = node
             node = node.next
         # Add a new node at the end of the list provided key/value
-        prev.next = Node(key, value)
+        prev.next = Node(key, value) 
 
 
         # slot = self.hash_index(key)
