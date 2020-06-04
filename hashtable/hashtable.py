@@ -18,7 +18,7 @@ class Node:
         self.next = None
         
     def __repr__(self):
-        return f'Node({repr(self.value)})'
+        return 'hi'
         
 class LinkedList:
     def __init__(self):
@@ -123,7 +123,7 @@ class HashTable:
         """
         # Your code here
         hash = 5381
-        for x in s:
+        for x in key:
             hash = (( hash << 5) + hash) + ord(x)
         return hash & 0xFFFFFFFF
 
@@ -145,17 +145,21 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        slot = self.hash_index(key)
-        current = self.storage[slot].head
-        while current:
-            if current.key == key:
-                current.value = value
-            current = current.next
+        # slot = self.hash_index(key)
+        # current = self.storage[slot].head
+        # while current:
+        #     if current.key == key:
+        #         current.value = value
+        #     current = current.next
             
-        entry = HashTableEntry(key, value)
-        self.storage[slot].insert_at_head(entry)
-        self.count += 1
-        
+        # entry = HashTableEntry(key, value)
+        # self.storage[slot].insert_at_head(entry)
+        # self.count += 1
+        if self.get_load_factor() > 0.7:
+            self.resize(self.capacity * 2)
+        slot = self.hash_index(key)
+        self.data[slot].insert_at_head(HashTableEntry(key, value))
+        self.count += self.count # iterate the count 
 
 
     def delete(self, key):
@@ -168,7 +172,7 @@ class HashTable:
         """
         # Your code here
         self.put(key, None)
-        self.count -= 1  # decrement the count index
+        self.count -= 1  # decrement the count 
 
 
     def get(self, key):
@@ -180,6 +184,19 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # slot = self.hash_index(key)
+        # current = self.storage[slot].head
+        # while current:
+        #     if current.key == key:
+        #         return current.value
+        #     current = current.next
+        # return None
+        slot = self.hash_index(key)
+        entry = self.data[slot]
+        if entry:
+            return entry.find(key)
+
+        return None
 
 
     def resize(self, new_capacity):
@@ -190,7 +207,17 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        new_data = [LinkedList()] * new_capacity
         self.capacity = new_capacity
+        for i in range(len(self.data)):
+            cur = self.data[i].head
+            while cur:
+                self.hash_index(cur.key)
+                new_data[i].insert_at_head(HashTableEntry(cur.key, cur.value))
+                cur = cur.next
+        self.data = new_data
+                
+        # self.capacity = new_capacity
 
 
 
