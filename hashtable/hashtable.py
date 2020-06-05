@@ -18,50 +18,49 @@ class Node:
         self.value = value
         self.next = None
         
-    def __repr__(self):
-        return 'hi'
+
+# unnecessisary linked list. 
+# class LinkedList:
+#     def __init__(self):
+#         self.head = None
+#     def __str__(self):
+#         r = ""
+#         cur = self.head
         
-class LinkedList:
-    def __init__(self):
-        self.head = None
-    def __str__(self):
-        r = ""
-        cur = self.head
+#         while cur is not None:
+#             r += f'({cur.value})'
+#             if cur.next is not None:
+#                 r += ' -> '
+#             cur = cur.next
+#         return r
         
-        while cur is not None:
-            r += f'({cur.value})'
-            if cur.next is not None:
-                r += ' -> '
-            cur = cur.next
-        return r
+#     def insert_at_head(self, node):
+#         node.next = self.head
+#         self.head = node
         
-    def insert_at_head(self, node):
-        node.next = self.head
-        self.head = node
+#     def find(self, value):
+#         cur = self.head
+#         while cur is not None:
+#             if cur.value == value:
+#                 return cur
+#             cur = cur.next
+#         return None
             
-    def find(self, value):
-        cur = self.head
-        while cur is not None:
-            if cur.value == value:
-                return cur
-            cur = cur.next
-        return None
-            
-    def delete(self, value):
-        cur = self.head
-        if cur.value == value:
-            self.head = self.head.next
-            return cur
-        prev = cur
-        cur = cur.next         
-        while cur is not None:
-            if cur.value == value:  
-                prev.next = cur.next   
-                return cur
-            else:
-                prev = prev.next
-                cur = cur.next
-        return None
+#     def delete(self, value):
+#         cur = self.head
+#         if cur.value == value:
+#             self.head = self.head.next
+#             return cur
+#         prev = cur
+#         cur = cur.next         
+#         while cur is not None:
+#             if cur.value == value:  
+#                 prev.next = cur.next   
+#                 return cur
+#             else:
+#                 prev = prev.next
+#                 cur = cur.next
+#         return None
 
 
 class HashTable:
@@ -76,7 +75,7 @@ class HashTable:
         # Your code here
         self.capacity = capacity
         self.count = 0
-        self.data = [LinkedList()] * capacity
+        self.data = [None] * capacity
         # same as data with 8 none's in it
 
 
@@ -146,43 +145,27 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        # 1. increment size
+        # increment size
         self.count += 1 
-        # 2. get the index
-        index = self.hash(key) #run the hash method on the key
-        # 3. go to the node corresponding with the hash, aka the index variable 
-        node = self.buckets[index]
+        # get the index
+        index = self.djb2(key) #run the hash method on the key
+        # go to the node corresponding with the hash, aka the index variable 
+        print(index)
+        index = index % self.capacity
+        freshnode = self.data[index]
         # if the bucket is empty
-        if node is None:
+        if freshnode is None:
             #create node, add it, return
             self.data[index] = Node(key, value)
             return
-        # 4. Iterate to the end of the LL at the provided index
-        prev = node #creating var prev, setting it to node
-        while node is not None:
-            prev = node
-            node = node.next
+        # Iterate to the end of the LL at the provided index
+        else: 
+            newNode = Node(key, value)
+            newNode.next = freshnode
+            self.data[index] = newNode
         # Add a new node at the end of the list provided key/value
-        prev.next = Node(key, value) 
 
 
-        # slot = self.hash_index(key)
-        # current = self.storage[slot].head
-        # while current:
-        #     if current.key == key:
-        #         current.value = value
-        #     current = current.next
-            
-        # entry = HashTableEntry(key, value)
-        # self.storage[slot].insert_at_head(entry)
-        # self.count += 1
-
-
-        # if self.get_load_factor() > 0.7:
-        #     self.resize(self.capacity * 2)
-        # slot = self.hash_index(key)
-        # self.data[slot].insert_at_head(HashTableEntry(key, value))
-        # self.count += self.count # iterate the count 
 
 
     def delete(self, key):
@@ -194,7 +177,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        self.put(key, None)
+        self.put(key, None) # set node to None
         self.count -= 1  # decrement the count 
 
 
@@ -207,21 +190,22 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        # slot = self.hash_index(key)
-        # current = self.storage[slot].head
-        # while current:
-        #     if current.key == key:
-        #         return current.value
-        #     current = current.next
-        # return None
+        # compute hash
+        index = self.djb2(key)
+        # go to the first node in list 
+        index = index % self.capacity
+        node = self.data[index]
+        # traverse the linked list at this node
+        while node is not None and node.key != key:
+            node = node.next
+        # now, node is the requested key/value pair or None
+        if node is None:
+            #we didn't find it
+            return None
+        else:
+            # found it, return data
+            return node.value
 
-
-        # slot = self.hash_index(key)
-        # entry = self.data[slot]
-        # if entry:
-        #     return entry.find(key)
-
-        # return None
 
 
     def resize(self, new_capacity):
@@ -232,20 +216,26 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        data = self.data
+
+        self.capacity = new_capacity
+        self.data = [None] * self.capacity
+        self.count = 0
+
+        for d in data:
+            if d != None:
+                while d.next != None:
+                    next = d.next
+                    self.put(d.key, d.value)
+                    d = next
+                self.put(d.key, d.value)
 
 
 
-        # new_data = [LinkedList()] * new_capacity
-        # self.capacity = new_capacity
-        # for i in range(len(self.data)):
-        #     cur = self.data[i].head
-        #     while cur:
-        #         self.hash_index(cur.key)
-        #         new_data[i].insert_at_head(HashTableEntry(cur.key, cur.value))
-        #         cur = cur.next
-        # self.data = new_data
-                
-        # self.capacity = new_capacity
+
+
+        
+
 
 
 
